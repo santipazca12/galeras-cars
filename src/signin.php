@@ -1,26 +1,21 @@
-<?php 
-//database connection
-require('../config/database.php');
-//get data from login form
-$e_mail =$_POST['email'];
-$p_asswd = $_POST['pswd'];
-$enc_pass = md5($p_asswd);
-//query 
-$sql_login = "SELECT u.* FROM users  u WHERE u.email = '$e_mail' AND u.password = '$enc_pass'";
+<?php
+require('config/database.php');
 
-//execute query
-$res = pg_query($sql_login);
+$e_mail  = $_POST['email'];
+$p_sword = $_POST['pswd'];
 
-if($res){
-    $tnum= pg_num_rows($res);
-    if($tnum > 0){
-        header('refresh:0;url=index.html');
+$sql = "SELECT * FROM users WHERE email = '$e_mail'";
+$res = pg_query($local_conn, $sql);
+
+if ($res && pg_num_rows($res) > 0) {
+    $user = pg_fetch_assoc($res);
+    if (password_verify($p_sword, $user['password'])) {
+        header('Location: index.html');
+        exit();
+    } else {
+        echo "<script>alert('Contraseña incorrecta'); window.location='login.html';</script>";
     }
-}else{
-    echo "<script>alert('Email or password not found')</script>";
-    header('refresh:0;url=login.html');
-}else{
-    echo "query error: ".pg_last_error();
+} else {
+    echo "<script>alert('Usuario no encontrado'); window.location='login.html';</script>";
 }
-
 ?>
